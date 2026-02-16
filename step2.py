@@ -146,7 +146,9 @@ def main():
     print(f"Salesforce returned {len(records)} opportunity records.", flush=True)
     print("Fetching ClickUp tasks...", flush=True)
     tasks_by_name = _run_with_timeout(55, fetch_clickup_tasks_by_name)
-    print(f"ClickUp returned {sum(len(v) for v in tasks_by_name.values())} tasks.", flush=True)
+    clickup_task_count = sum(len(v) for v in tasks_by_name.values())
+    clickup_names = set(tasks_by_name.keys())
+    print(f"ClickUp returned {clickup_task_count} tasks.", flush=True)
 
     for record in records:
         account = record.get("Account") or {}
@@ -159,6 +161,8 @@ def main():
 
         if not account_number:
             print(f"Skipping: no Account Number for {account_name}")
+            continue
+        if account_name not in clickup_names:
             continue
 
         matching_tasks = tasks_by_name.get(account_name, [])
